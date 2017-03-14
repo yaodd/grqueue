@@ -5,8 +5,8 @@ import (
 )
 
 type GoroutineQueue struct {
-	Number int
-	Total  int
+	Number int //并发执行的任务个数
+	Total  int //总任务数
 
 	tasks             chan func() interface{}
 	task_end_callback func(result interface{})
@@ -21,6 +21,8 @@ func NewGoroutineQueue(number int, total int) *GoroutineQueue {
 	return queue
 }
 
+var wg sync.WaitGroup
+
 //开始执行task
 func (queue *GoroutineQueue) Start() {
 	defer close(queue.tasks)
@@ -28,7 +30,7 @@ func (queue *GoroutineQueue) Start() {
 	wg.Add(len(queue.tasks))
 	for i := 0; i < queue.Number; i++ {
 
-		//分number个routine执行task
+		//分number个routine执行work
 		go queue.work()
 	}
 
@@ -40,8 +42,6 @@ func (queue *GoroutineQueue) Start() {
 		queue.finish_callback()
 	}
 }
-
-var wg sync.WaitGroup
 
 func (queue *GoroutineQueue) work() {
 
