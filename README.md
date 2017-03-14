@@ -1,5 +1,5 @@
 # grqueue
-Grqueue is a simple goroutine synchronous queue.It can make the mutiple tasks what cost too many time and can execute synchronously in your program run at different goroutine.
+Grqueue is a simple goroutine synchronous queue.It can make the mutiple tasks what cost too many time and execute synchronously in your program run at different goroutines.
 ## Quickstart
 ```
 go get github.com/yaodd/grqueue
