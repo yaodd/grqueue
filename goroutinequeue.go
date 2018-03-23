@@ -11,6 +11,8 @@ type GoroutineQueue struct {
 	tasks             chan func() interface{}
 	task_end_callback func(result interface{})
 	finish_callback   func()
+
+	wg sync.WaitGroup
 }
 
 func NewGoroutineQueue(number int, total int) *GoroutineQueue {
@@ -21,13 +23,11 @@ func NewGoroutineQueue(number int, total int) *GoroutineQueue {
 	return queue
 }
 
-var wg sync.WaitGroup
-
 //开始执行task
 func (queue *GoroutineQueue) Start() {
 	defer close(queue.tasks)
 	//加锁，锁的数量是tasks的数量
-	wg.Add(len(queue.tasks))
+	queue.wg.Add(len(queue.tasks))
 	for i := 0; i < queue.Number; i++ {
 
 		//分number个routine执行work
@@ -35,7 +35,7 @@ func (queue *GoroutineQueue) Start() {
 	}
 
 	//等待routine执行完毕
-	wg.Wait()
+	queue.wg.Wait()
 
 	//所有task完毕，若finish回调函数存在则执行则回调
 	if queue.finish_callback != nil {
@@ -60,7 +60,7 @@ func (queue *GoroutineQueue) work() {
 		}
 
 		//每执行完一个task，解锁一次
-		wg.Done()
+		queue.wg.Done()
 	}
 
 }
